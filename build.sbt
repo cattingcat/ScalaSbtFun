@@ -49,5 +49,3 @@ lazy val root = (project in file("."))
   )
   .aggregate(core, tgBot, webApp)
   .dependsOn(core)
-
-libraryDependencies += "com.typesafe.akka" %% "akka-actor" % "2.5.18"

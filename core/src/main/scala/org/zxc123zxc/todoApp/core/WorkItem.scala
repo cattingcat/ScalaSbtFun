@@ -1,5 +1,3 @@
 package org.zxc123zxc.todoApp.core
 
-class WorkItem(val title: String) {
-
-}
+class WorkItem(val title: String) {}
