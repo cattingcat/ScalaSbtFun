@@ -18,17 +18,24 @@ lazy val settings = Seq(
 )
 
 
-
-
 lazy val core = (project in file("core"))
   .settings(settings)
 
+
+val botMainPath = "org.zxc123zxc.todoApp.tgBot.Main"
 lazy val tgBot = (project in file("tg-bot"))
-  .settings(settings)
+  .settings(
+    settings,
+    mainClass in Compile := Some(botMainPath),
+    mainClass in assembly := Some(botMainPath))
   .dependsOn(core)
 
+val webAppPath = "org.zxc123zxc.todoApp.webApp.Main"
 lazy val webApp = (project in file("web-app"))
-  .settings(settings)
+  .settings(
+    settings,
+    mainClass in Compile := Some(webAppPath),
+    mainClass in assembly := Some(webAppPath))
   .dependsOn(core)
 
 
