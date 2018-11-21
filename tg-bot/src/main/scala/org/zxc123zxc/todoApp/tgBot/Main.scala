@@ -2,6 +2,7 @@ package org.zxc123zxc.todoApp.tgBot
 
 import akka.actor.{Actor, ActorSystem, Props}
 import org.zxc123zxc.todoApp.core.WorkItem
+import org.zxc123zxc.todoApp.utils.Utils
 
 import scala.io.StdIn
 
@@ -15,6 +16,8 @@ class TestActor extends Actor {
 
 object Main {
   def main(args: Array[String]): Unit = {
+    println(Utils.greeting)
+
     val item = new WorkItem("Tg bot")
     println(item.title)
 
