@@ -8,7 +8,8 @@ lazy val settings = Seq(
     "-language:postfixOps",
     "-deprecation",
     "-encoding",
-    "utf8"
+    "utf8",
+    "-Ypartial-unification"
   ),
   resolvers ++= Seq(
     "Local Maven Repository" at "file://" + Path.userHome.absolutePath + "/.m2/repository",
@@ -38,6 +39,13 @@ lazy val webApp = (project in file("web-app"))
     mainClass in assembly := Some(webAppPath))
   .dependsOn(core)
 
+val streamsFunPath = "org.zxc123zxc.todoApp.streamsFun.Main"
+lazy val streamsFun = (project in file("streams-fun"))
+  .settings(
+    settings,
+    mainClass in Compile := Some(streamsFunPath),
+    mainClass in assembly := Some(streamsFunPath))
+  .dependsOn(core)
 
 lazy val root = (project in file("."))
   .settings(
@@ -47,5 +55,5 @@ lazy val root = (project in file("."))
     scalaVersion := "2.12.7",
     //mainClass in Compile := Some(mainPath)
   )
-  .aggregate(core, tgBot, webApp)
+  .aggregate(core, tgBot, webApp, streamsFun)
   .dependsOn(core)
