@@ -14,6 +14,9 @@ import sun.nio.cs.Surrogate
 
 import scala.util.matching.Regex
 
+// See example here
+// https://github.com/fpinscala/fpinscala/blob/master/answers/src/main/scala/fpinscala/parsing/instances/Reference.scala
+
 
 
 trait Parsers[Err, Parser[+_]] {
@@ -40,7 +43,7 @@ trait Parsers[Err, Parser[+_]] {
   implicit def idOps[A](p: Parser[A]): ParserOps[A] = ParserOps(p)
   implicit def ops[A](a: A)(implicit f: A => Parser[A]): ParserOps[A] = ParserOps(f(a))
 
-  def whitespace: Parser[String] = "\\s*".r
+  def whitespaces: Parser[String] = "\\s*".r
   def skipL[A, B](pa: Parser[A], pb: Parser[B]): Parser[B] = flatMap(pa)(_ => flatMap(pb)(r => succeed(r)))
   def skipR[A, B](pa: Parser[A], pb: Parser[B]): Parser[A] = flatMap(pa)(r => flatMap(pb)(_ => succeed(r)))
   def optional[A](p: Parser[A]): Parser[Option[A]]
@@ -180,7 +183,60 @@ object Tmp {
     override def succeed[A](a: A): Parser[A] = _ => Succeed(a, 0)
 
 
+    val sp: Parser[List[String]] = " ".many
+
     def surround[A, B, C](start: Parser[A], stop: Parser[B])(p: => Parser[C]): Parser[C] = start *> p <* stop
+
+    def key: Parser[String] = s => {
+      val ss = s.input.substring(s.loc.offset)
+      val r = ss.takeWhile(_.isLetterOrDigit)
+
+      if(!r.isEmpty) Succeed(r, r.length)
+      else Failure("isn't key")
+    }
+
+    def lexeme: Parser[String] = s => {
+      val ss = s.input.substring(s.loc.offset)
+      val stopSigns = Set(',', ']', '}', '"')
+      val r = ss.takeWhile(c => !stopSigns.contains(c))
+
+      if(!r.isEmpty) Succeed(r, r.length)
+
+      Failure("isn't lexeme")
+    }
+
+
+    def intLiteral: Parser[Int] = s => {
+      val ss = s.input.substring(s.loc.offset)
+      val r = ss.takeWhile(_.isDigit)
+
+      if(!r.isEmpty) Succeed(r.toInt, r.length)
+      else Failure("isn't num")
+    }
+
+    def strLiteral: Parser[String] = s => {
+      val ss = s.input.substring(s.loc.offset)
+      if(ss.startsWith("\"")) {
+
+        val str = ss.substring(1).takeWhile(_ != '"')
+        Succeed(str, str.length + 2)
+      } else {
+        Failure("Incorrect string literal")
+      }
+    }
+
+    def keyValueC[A, B](separator: String)(l: Parser[A], r: Parser[B]): Parser[(A, B)] = {
+      (surround(sp, sp)(l) ** separator ** surround(sp, sp)(r)).map {
+        case ((a, _), c) => (a, c)
+      }
+    }
+
+    def keyValue[A](separator: String): Parser[(String, String)] = {
+      (surround(sp, sp)(key) ** separator ** surround(sp, sp)(key)).map {
+        case ((a, _), c) => (a, c)
+      }
+    }
+
   }
 }
 
@@ -190,9 +246,14 @@ object Main {
 
     import Tmp.SimpleParsers._
 
-    val sp = whitespace.opt
+
     val parser = surround(sp, sp)("bbb")
-    val res = run(parser)("         bbb        ")
+    val parser2 = "aaa" ** "bbb"
+    val parser3 = surround(sp, sp)(keyValue(":"))
+    val parser4 = surround("{", "}")(keyValue(":"))
+    val parser5 = surround("{", "}")(keyValueC(":")(strLiteral, strLiteral))
+
+    val res = run(parser5)("{   \"aaa \" :  \"23423\"   }")
 
     println(res)
 
