@@ -1,5 +1,3 @@
-package org.zxc123zxc.todoApp.streamsFun
-
 import cats.{Apply, Foldable, Monad}
 import cats.instances.list._
 import cats.implicits._
@@ -239,25 +237,23 @@ object Tmp {
   }
 }
 
-object Main {
-  def main(args: Array[String]): Unit = {
-    println("Hello world")
-
-    import Tmp.SimpleParsers._
-
-
-    val parser = surround(sp, sp)("bbb")
-    val parser2 = "aaa" ** "bbb"
-    val parser3 = surround(sp, sp)(keyValue(":"))
-    val parser4 = surround("{", "}")(keyValue(":"))
-    val parser5 = surround("{", "}")(keyValueC(":")(strLiteral, strLiteral))
-
-    val res = run(parser5)("{   \"aaa \" :  \"23423\"   }")
-
-    println(res)
 
 
 
+println("Hello world")
+
+import Tmp.SimpleParsers._
+
+
+val parser = surround(sp, sp)("bbb")
+val parser2 = "aaa" ** "bbb"
+val parser3 = surround(sp, sp)(keyValue(":"))
+val parser4 = surround("{", "}")(keyValue(":"))
+val parser5 = surround("{", "}")(keyValueC(":")(strLiteral, strLiteral))
+
+val res = run(parser5)("{   \"aaa \" :  \"23423\"   }")
+
+println(res)
 
 
 
@@ -266,7 +262,7 @@ object Main {
 
 
 
-    val json ="""
+val json ="""
 {
   "Company name" : "Microsoft Corporation",
   "Ticker" : "MSFT",
@@ -275,5 +271,4 @@ object Main {
   "Shares outstanding" : 8.38e9,
   "Related companies" : [ "HPQ", "IBM", "YHOO", "DELL", "GOOG" ]
 }"""
-  }
-}
+
