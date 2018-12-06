@@ -153,18 +153,20 @@ trait Applicative[F[_]] {
 
   // 12.12
   def sequenceMap[K, V](m: Map[K, F[V]]): F[Map[K, V]] = {
-    def seqList[K1, V1](l: List[(K1, F[V1])]): F[List[(K1, V1)]] = l match {
-      case k -> v :: rest =>
-        val elem: F[(K1, V1)] = map2(unit(k), v)((_, _))
-        val restMap: F[List[(K1, V1)]] = seqList(rest)
+    def seqList[K1, V1](l: List[(K1, F[V1])]): F[List[(K1, V1)]] = {
+      l match {
+        case (k, v) :: rest =>
+          val elem: F[(K1, V1)] = map2(unit(k), v)((_, _))
+          val restMap: F[List[(K1, V1)]] = seqList(rest)
 
-        map2(elem, restMap)(_ :: _)
-      case _ => unit(Nil)
+          map2(elem, restMap)(_ :: _)
+        case _ => unit(Nil)
+      }
     }
 
     def toMap(l: List[(K, V)]): Map[K, V] = l.toMap
 
-    apply(unit(toMap))(seqList(m.toList))
+    apply(unit(toMap _))(seqList(m.toList))
   }
 }
 
@@ -218,7 +220,9 @@ eiMonad.flatMap(Right(somePerson))(p => Left(p.lastName))
 
 
 
-
+case class Dog(name: String, breed: String)
+val d1 = Dog("Scooby", "Doberman")
+d1.toString
 
 
 
